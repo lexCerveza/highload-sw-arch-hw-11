@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  redis-primary:
+    image: docker.io/bitnami/redis:6.2
+    ports:
+      - '6379'
+    environment:
+      - REDIS_REPLICATION_MODE=master
+      - REDIS_PASSWORD=my_password
+      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
+    volumes:
+      - 'redis_data:/bitnami/redis/data'
+      - ./redis.conf:/opt/bitnami/redis/mounted-etc/redis.conf
+
+  redis-secondary:
+    image: docker.io/bitnami/redis:6.2
+    ports:
+      - '6379'
+    depends_on:
+      - redis-primary
+    environment:
+      - REDIS_REPLICATION_MODE=slave
+      - REDIS_MASTER_HOST=redis-primary
+      - REDIS_MASTER_PORT_NUMBER=6379
+      - REDIS_MASTER_PASSWORD=my_password
+      - REDIS_PASSWORD=my_password
+      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
+
+  redis-data-filler:
+    image: docker.io/bitnami/redis:6.2
+    command: sh -c "/usr/local/scripts/fill.redis.sh"
+    volumes:
+      - ./fill-redis.sh:/usr/local/scripts/fill.redis.sh
+    depends_on:
+      - redis-primary
+      - redis-secondary
+
+volumes:
+  redis_data:
+    driver: local
