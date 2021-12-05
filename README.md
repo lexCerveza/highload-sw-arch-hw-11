@@ -30,7 +30,9 @@ docker-compose logs redis-data-filler
 
 # Note : if kvp is set (without ttl), for volatile policies error `OOM command not allowed` will occur. If use setex (with ttl) error is not reproduced
 
-# 4. Cleanup
+# 4. Redis client wrapper with cache stampede prevention is located in `./redis-client-wrapper/RedisClientWrapper.cs`
+
+# 5. Cleanup
 ```
 ./cleanup.sh
 ```
